@@ -1,0 +1,4 @@
+{{ django_app_path }}
+{{ django_config_path }}
+{% for path in django_source_paths %}{{path}}
+{% endfor %}

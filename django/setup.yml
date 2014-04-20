@@ -1,0 +1,71 @@
+- name: Setup Django system packages
+  apt: pkg={{item}}
+  with_items:
+    - libevent-dev
+    - python-setuptools
+    - python-pip
+    - python-dev
+    - git
+  sudo: yes
+
+- name: Install virtualenv
+  pip: name=virtualenv
+  sudo: yes
+
+- name: Create the project directory.
+  file: path={{django_project_root}} group={{django_user}} owner={{django_user}} mode=755 state=directory
+  sudo: yes
+
+- name: Create the code directory.
+  file: path={{django_repo_path}} group={{django_user}} owner={{django_user}} mode=755 state=directory
+  sudo: yes
+
+- name: Create the config directory.
+  file: path={{django_config_path}} group={{django_user}} owner={{django_user}} mode=755 state=directory
+  sudo: yes
+
+- name: Create logs directory.
+  file: path={{django_logs_path}} owner={{django_user}} group={{django_user}} recurse=yes state=directory mode=0770
+  sudo: yes
+
+- name: Create static files directory.
+  file: path={{django_static_path}} owner={{django_user}} group={{django_user}} recurse=yes state=directory mode=0777
+  sudo: yes
+
+- name: Create virtualenv.
+  pip:  name=path.py virtualenv={{django_env_path}}
+  sudo: yes
+  sudo_user: "{{django_user}}"
+
+- name: Configure DJANGO_SETTINGS_MODULE for virtualenv
+  lineinfile: dest={{django_env_path}}/bin/activate regexp="^export DJANGO_SETTINGS_MODULE" line="export DJANGO_SETTINGS_MODULE={{django_settings_module}}"
+  sudo: yes
+  sudo_user: "{{django_user}}"
+
+- name: Configure PYTHONPATH for virtualenv # this adds a .pth file into site-packages
+  template: src=../django/templates/pythonpath.pth dest={{django_env_path}}/lib/python2.7/site-packages/{{django_project_name}}.pth
+  sudo: yes
+  sudo_user: "{{django_user}}"
+
+- name: Configure nginx
+  template: src=../django/templates/nginx_site dest=/etc/nginx/sites-enabled/{{django_project_name}}
+  sudo: yes
+  notify:
+    - restart nginx
+
+- name: Configure uwsgi service
+  supervised:
+    name: "uwsgi-{{django_project_name}}"
+    command: '{{django_env_path}}/bin/uwsgi --chdir {{django_app_path}}  --wsgi-file {{django_wsgi_script}} --master --processes 4 --threads 2 --socket 127.0.0.1:{{django_uwsgi_port}}'
+    autorestart: true
+    stdout_logfile: '{{django_logs_path}}/uwsgi-out.log'
+    stderr_logfile: '{{django_logs_path}}/uwsgi-err.log'
+    user: '{{django_project_name}}'
+    directory: '{{django_app_path}}'
+
+  sudo: yes
+  notify:
+    - start supervisord
+    - reload supervisord tasks
+
+

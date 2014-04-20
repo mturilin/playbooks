@@ -1,0 +1,9 @@
+- name: start supervisord
+  service: name=supervisor state=started enabled=yes
+  sudo: true
+  sudo_user: root
+
+- name: reload supervisord tasks
+  shell: supervisorctl reload all
+  sudo: true
+  sudo_user: root

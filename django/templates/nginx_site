@@ -1,0 +1,29 @@
+{% if nginx_ssl_only|default(False) %}
+# Redirect HTTP to HTTPS
+server {
+    listen [::]:80;
+    return 301 https://$host$request_uri;
+}
+{% endif %}
+
+server {
+    {% if not nginx_ssl_only|default(False) %}
+    listen 80;
+    {% endif %}
+
+    {% if nginx_ssl %}
+    listen 443 default_server ssl;
+    ssl_certificate      {{nginx_ssl_crt_file}};
+    ssl_certificate_key  {{nginx_ssl_key_file}};
+    {% endif %}
+
+    location {{django_static_url}} {
+        autoindex on;
+        alias           {{django_static_path}}/;
+    }
+
+    location / {
+        uwsgi_pass      127.0.0.1:{{django_uwsgi_port}};
+        include         uwsgi_params;
+    }
+}

@@ -1,0 +1,35 @@
+- name: Pull sources from the repository.
+  git: repo={{django_project_repo}} dest={{django_repo_path}} version={{django_project_repo_branch}} accept_hostkey=yes
+  notify: reload supervisord tasks
+  sudo: yes
+  sudo_user: '{{django_user}}'
+
+- name: Update python dependencies.
+  pip: requirements={{django_repo_path}}/requirements.txt virtualenv={{django_env_path}}
+  notify: reload supervisord tasks
+  sudo: yes
+  sudo_user: '{{django_user}}'
+
+- name: Sync Django database.
+  django_manage: command="syncdb --migrate --noinput" virtualenv={{django_env_path}}/ app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}
+  sudo: yes
+  sudo_user: '{{django_user}}'
+
+- name: Migrate Django database schema using South.
+  django_manage: command="migrate" virtualenv={{django_env_path}}/ app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}
+  sudo: yes
+  sudo_user: '{{django_user}}'
+
+- name: Collect static files
+  django_manage: command="collectstatic" virtualenv={{django_env_path}} app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}
+  sudo: yes
+  sudo_user: '{{django_user}}'
+
+- name: Ensure nginx is started
+  service: name=nginx state=started enabled=yes
+  sudo: yes
+
+- name: Ensure supervisord is started
+  service: name=supervisor state=started enabled=yes
+  sudo: yes
+

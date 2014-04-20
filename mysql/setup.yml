@@ -1,0 +1,22 @@
+---
+#
+# Installs MySQL server, creates user, and creates a database.
+# For security, ensures MySQL accepts only local connections.
+#
+
+- name: Install MySQL packages
+  apt: pkg={{item}} state=installed
+  sudo: yes
+  with_items:
+    - mysql-server
+    - python-mysqldb
+
+- name: Make MySQL accept only local connections
+  lineinfile: dest=/etc/mysql/my.cnf regexp="^bind-address" line="bind-address = 127.0.0.1"
+  sudo: yes
+
+- name: Create MySQL database "{{mysql_db_name}}"
+  mysql_db: name={{mysql_db_name}} state=present
+
+- name: Create MySQL user "{{mysql_user_name}}"
+  mysql_user: name={{mysql_user_name}} password="{{mysql_user_password}}" state=present priv="{{mysql_db_name}}.*:ALL"
