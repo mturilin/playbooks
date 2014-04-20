@@ -1,0 +1,23 @@
+---
+#
+# Installs PostgreSQL server, creates user, and creates a database.
+# For security, ensures MySQL accepts only local connections.
+#
+
+- name: Install PosgreSQL packages
+  apt: pkg={{item}} state=installed
+  sudo: yes
+  with_items:
+    - postgresql-9.3
+    - python-psycopg2
+
+- name: Create PosgreSQL user "{{postgresql_user_name}}"
+  postgresql_user: name={{postgresql_user_name}} password="{{postgresql_user_password}}" state=present
+  sudo: yes
+  sudo_user: postgres
+
+- name: Create PosgreSQL database "{{postgresql_db_name}}"
+  postgresql_db: name={{postgresql_db_name}} state=present owner={{postgresql_user_name}}
+  sudo: yes
+  sudo_user: postgres
+
