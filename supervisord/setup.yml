@@ -12,40 +12,40 @@
   sudo: yes
   notify:
     - start supervisord
-    - reload supervisord tasks
+    - restart supervisord tasks
 
 - name: create supervisord config dir
   file: path=/etc/supervisor/ mode=0700 state=directory
   sudo: yes
   notify:
     - start supervisord
-    - reload supervisord tasks
+    - restart supervisord tasks
 
 - name: create supervisord log dir
   file: path=/var/log/supervisor/ mode=0700 state=directory
   sudo: yes
   notify:
     - start supervisord
-    - reload supervisord tasks
+    - restart supervisord tasks
 
 - name: create supervisord config include dir
   file: path=/etc/supervisor/conf.d/ mode=0700 state=directory recurse=yes
   sudo: yes
   notify:
     - start supervisord
-    - reload supervisord tasks
+    - restart supervisord tasks
 
 - name: create supervisord configuration
   template: src=../supervisord/files/supervisord.conf dest=/etc/supervisord.conf
   sudo: yes
   notify:
     - start supervisord
-    - reload supervisord tasks
+    - restart supervisord tasks
 
 - name: create supervisord upstart script
   copy: src=../supervisord/files/supervisord_upstart_conf.txt dest=/etc/init/supervisor.conf
   sudo: yes
   notify:
     - start supervisord
-    - reload supervisord tasks
+    - restart supervisord tasks
 

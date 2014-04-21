@@ -62,11 +62,13 @@
     stderr_logfile: '{{django_logs_path}}/uwsgi-err.log'
     user: '{{django_project_name}}'
     directory: '{{django_app_path}}'
-    environment: 'DJANGO_SETTINGS_MODULE={{django_settings_module}}'
+    environment:
+      DJANGO_SETTINGS_MODULE: '{{django_settings_module}}'
 
   sudo: yes
   notify:
+    - restart nginx
     - start supervisord
-    - reload supervisord tasks
+    - restart supervisord tasks
 
 

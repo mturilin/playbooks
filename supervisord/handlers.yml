@@ -3,7 +3,7 @@
   sudo: true
   sudo_user: root
 
-- name: reload supervisord tasks
-  shell: supervisorctl reload all
+- name: restart supervisord tasks
+  shell: supervisorctl restart all
   sudo: true
   sudo_user: root
