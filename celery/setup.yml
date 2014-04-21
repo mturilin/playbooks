@@ -1,22 +1,23 @@
 - name: Adding celery worker daemons
   supervised:
-    name: celery-worker-{{item.app}}
+    name: celery-worker-{{item.app}}-%(process_num)
     command: '{{celery_env_path}}/bin/celery -A {{item.app}} worker -l info'
-    autostart: true
-    autorestart: true
+    autostart: 'true'
+    autorestart: 'true'
     stdout_logfile: '{{celery_logs_path}}/celery-worker-{{item.app}}-out.log'
     stderr_logfile: '{{celery_logs_path}}/celery-worker-{{item.app}}-err.log'
     user: '{{celery_user}}'
     directory: '{{celery_directory}}'
     numprocs: '{{item.numprocs}}'
   with_items: celery_apps
+  sudo: yes
 
 - name: Adding celery beat daemons
   supervised:
     name: celery-beat-{{item.app}}
     command: '{{celery_env_path}}/bin/celery -A {{item.app}} beat -l info'
-    autostart: true
-    autorestart: true
+    autostart: 'true'
+    autorestart: 'true'
     stdout_logfile: '{{celery_logs_path}}/celery-beat-{{item.app}}-out.log'
     stderr_logfile: '{{celery_logs_path}}/celery-beat-{{item.app}}-err.log'
     user: '{{celery_user}}'
@@ -24,5 +25,6 @@
     numprocs: 1
   when: item.beat
   with_items: celery_apps
+  sudo: yes
 
 
