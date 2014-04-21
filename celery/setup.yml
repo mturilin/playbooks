@@ -1,6 +1,6 @@
 - name: Adding celery worker daemons
   supervised:
-    name: celery-worker-{{item.app}}-%(process_num)
+    name: celery-worker-{{item.app}}
     command: '{{celery_env_path}}/bin/celery -A {{item.app}} worker -l info'
     autostart: 'true'
     autorestart: 'true'
