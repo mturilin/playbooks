@@ -5,9 +5,10 @@
   sudo_user: '{{django_user}}'
 
 - name: Update python dependencies.
-  pip: requirements={{django_repo_path}}/requirements.txt virtualenv={{django_env_path}}
+  pip: requirements={{item}} virtualenv={{django_env_path}}
   sudo: yes
   sudo_user: '{{django_user}}'
+  with_items: django_requirements_paths
   notify:
     - restart supervisord tasks
 
