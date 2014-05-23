@@ -7,3 +7,8 @@
   shell: supervisorctl restart all
   sudo: true
   sudo_user: root
+
+- name: update supervisord
+  shell: supervisorctl update
+  sudo: true
+  sudo_user: root
