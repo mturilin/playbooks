@@ -1,0 +1,15 @@
+- name: Copying timezone into /etc/localtime
+  copy: src=/usr/share/zoneinfo/{{timezone}} dest=/etc/localtime
+  sudo: yes
+  when: timezone is defined
+  notify:
+    - update tzdata
+    - restart cron
+
+- name: Set /etc/timezone to {{timezone}}
+  template: src=../timezone/templates/etc_timezone dest=/etc/timezone
+  sudo: yes
+  when: timezone is defined
+  notify:
+    - update tzdata
+    - restart cron
