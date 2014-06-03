@@ -60,7 +60,7 @@
     autorestart: true
     stdout_logfile: '{{django_logs_path}}/uwsgi-out.log'
     stderr_logfile: '{{django_logs_path}}/uwsgi-err.log'
-    user: '{{django_project_name}}'
+    user: '{{django_user}}'
     directory: '{{django_app_path}}'
     environment:
       DJANGO_SETTINGS_MODULE: '{{django_settings_module}}'
@@ -70,5 +70,3 @@
     - restart nginx
     - start supervisord
     - restart supervisord tasks
-
-
