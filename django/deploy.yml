@@ -1,16 +1,12 @@
-- name: Pull sources from the repository.
-  git: repo={{django_project_repo}} dest={{django_repo_path}} version={{django_project_repo_branch}} accept_hostkey=yes
-  notify: restart supervisord tasks
-  sudo: yes
-  sudo_user: '{{django_user}}'
+- include: ../pythonenv/deploy.yml
+  vars:
+    python_user: "{{ django_user }}"
+    python_repo_path: "{{ django_repo_path }}"
+    python_requirements_paths: "{{ django_requirements_paths }}"
+    python_env_path: "{{ django_env_path }}"
+    python_project_repo: "{{ django_project_repo }}"
+    python_project_repo_branch: "{{ django_project_repo_branch }}"
 
-- name: Update python dependencies.
-  pip: requirements={{item}} virtualenv={{django_env_path}}
-  sudo: yes
-  sudo_user: '{{django_user}}'
-  with_items: django_requirements_paths
-  notify:
-    - restart supervisord tasks
 
 - name: Sync Django database.
   django_manage: command="syncdb --migrate --noinput" virtualenv={{django_env_path}}/ app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}

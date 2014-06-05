@@ -1,0 +1,13 @@
+- name: Pull sources from the repository.
+  git: repo={{python_project_repo}} dest={{python_repo_path}} version={{python_project_repo_branch}} accept_hostkey=yes
+  notify: restart supervisord tasks
+  sudo: yes
+  sudo_user: '{{python_user}}'
+
+- name: Update python dependencies.
+  pip: requirements={{item}} virtualenv={{python_env_path}}
+  sudo: yes
+  sudo_user: '{{python_user}}'
+  with_items: python_requirements_paths
+  notify:
+    - restart supervisord tasks

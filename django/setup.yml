@@ -1,51 +1,19 @@
-- name: Setup Django system packages
-  apt: pkg={{item}}
-  with_items:
-    - libevent-dev
-    - python-setuptools
-    - python-pip
-    - python-dev
-    - git
-  sudo: yes
+- include: ../pythonenv/setup.yml
+  vars:
+    python_project_root: "{{ django_project_root }}"
+    python_user: "{{ django_user }}"
+    python_repo_path: "{{ django_repo_path }}"
+    python_logs_path: "{{ django_logs_path }}"
+    python_env_path: "{{ django_env_path }}"
+    python_env_variables:
+      - {name: "DJANGO_SETTINGS_MODULE", value: "{{django_settings_module}}"}
+    python_app_name: "{{ django_project_name }}"
+    python_source_paths: "{{ django_source_paths }}"
 
-- name: Install virtualenv
-  pip: name=virtualenv
-  sudo: yes
-
-- name: Create the project directory.
-  file: path={{django_project_root}} group={{django_user}} owner={{django_user}} mode=755 state=directory
-  sudo: yes
-
-- name: Create the code directory.
-  file: path={{django_repo_path}} group={{django_user}} owner={{django_user}} mode=755 state=directory
-  sudo: yes
-
-- name: Create the config directory.
-  file: path={{django_config_path}} group={{django_user}} owner={{django_user}} mode=755 state=directory
-  sudo: yes
-
-- name: Create logs directory.
-  file: path={{django_logs_path}} owner={{django_user}} group={{django_user}} recurse=yes state=directory mode=0770
-  sudo: yes
 
 - name: Create static files directory.
   file: path={{django_static_path}} owner={{django_user}} group={{django_user}} recurse=yes state=directory mode=0777
   sudo: yes
-
-- name: Create virtualenv.
-  pip:  name=path.py virtualenv={{django_env_path}}
-  sudo: yes
-  sudo_user: "{{django_user}}"
-
-- name: Configure DJANGO_SETTINGS_MODULE for virtualenv
-  lineinfile: dest={{django_env_path}}/bin/activate regexp="^export DJANGO_SETTINGS_MODULE" line="export DJANGO_SETTINGS_MODULE={{django_settings_module}}"
-  sudo: yes
-  sudo_user: "{{django_user}}"
-
-- name: Configure PYTHONPATH for virtualenv # this adds a .pth file into site-packages
-  template: src=../django/templates/pythonpath.pth dest={{django_env_path}}/lib/python2.7/site-packages/{{django_project_name}}.pth
-  sudo: yes
-  sudo_user: "{{django_user}}"
 
 - name: Configure nginx
   template: src=../django/templates/nginx_site dest=/etc/nginx/sites-enabled/{{django_project_name}}

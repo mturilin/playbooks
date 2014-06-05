@@ -1,0 +1,42 @@
+- name: Setup system packages
+  apt: pkg={{item}}
+  with_items:
+    - libevent-dev
+    - python-setuptools
+    - python-pip
+    - python-dev
+    - git
+  sudo: yes
+
+- name: Install virtualenv
+  pip: name=virtualenv
+  sudo: yes
+
+- name: Create the project directory.
+  file: path={{python_project_root}} group={{python_user}} owner={{python_user}} mode=755 state=directory
+  sudo: yes
+
+- name: Create the code directory.
+  file: path={{python_repo_path}} group={{python_user}} owner={{python_user}} mode=755 state=directory
+  sudo: yes
+
+- name: Create logs directory.
+  file: path={{python_logs_path}} owner={{python_user}} group={{python_user}} recurse=yes state=directory mode=0770
+  sudo: yes
+
+- name: Create virtualenv.
+  pip:  name=path.py virtualenv={{python_env_path}}
+  sudo: yes
+  sudo_user: "{{python_user}}"
+
+- name: Configure env variables for virtualenv
+  lineinfile: dest={{python_env_path}}/bin/activate regexp="^export {{item.name}}" line="export {{item.name}}={{item.value}}"
+  sudo: yes
+  sudo_user: "{{python_user}}"
+  with_items: python_env_variables
+
+- name: Configure PYTHONPATH for virtualenv # this adds a .pth file into site-packages
+  template: src=../pythonenv/templates/pythonpath.pth dest={{python_env_path}}/lib/python2.7/site-packages/{{python_app_name}}.pth
+  sudo: yes
+  sudo_user: "{{python_user}}"
+
