@@ -38,8 +38,3 @@
     - restart nginx
     - start supervisord
     - restart supervisord tasks
-
-- name: Setup virtualenv default for django user
-  lineinfile: dest={{django_user_home}}/.bashrc line='source {{django_env_path}}/bin/activate'
-  when: django_user_default_to_env
-  sudo: yes
