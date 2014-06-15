@@ -8,8 +8,14 @@
     python_project_repo_branch: "{{ django_project_repo_branch }}"
 
 
+- name: Create directories
+  file: path={{item[0]}} owner={{django_user}} group={{django_user}} recurse=yes state=directory mode={{item[1]}}
+  sudo: yes
+  with_items: django_create_dirs
+
+
 - name: Sync Django database.
-  django_manage: command="syncdb --migrate --noinput" virtualenv={{django_env_path}}/ app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}
+  django_manage: command="syncdb --noinput" virtualenv={{django_env_path}}/ app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}
   sudo: yes
   sudo_user: '{{django_user}}'
 
@@ -17,6 +23,7 @@
   django_manage: command="migrate" virtualenv={{django_env_path}}/ app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}
   sudo: yes
   sudo_user: '{{django_user}}'
+  when: django_south_support | default(False)
 
 - name: Collect static files
   django_manage: command="collectstatic" virtualenv={{django_env_path}} app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}

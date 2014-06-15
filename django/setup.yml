@@ -11,15 +11,17 @@
     python_source_paths: "{{ django_source_paths }}"
 
 
-- name: Create static files directory.
-  file: path={{django_static_path}} owner={{django_user}} group={{django_user}} recurse=yes state=directory mode=0777
+- name: Install UWSGI
+  pip:  name=uwsgi virtualenv={{django_env_path}}
   sudo: yes
+  sudo_user: "{{django_user}}"
 
 - name: Configure nginx
   template: src=../django/templates/nginx_site dest=/etc/nginx/sites-enabled/{{django_project_name}}
   sudo: yes
   notify:
     - restart nginx
+
 
 - name: Configure uwsgi service
   supervised:
@@ -32,7 +34,25 @@
     directory: '{{django_app_path}}'
     environment:
       DJANGO_SETTINGS_MODULE: '{{django_settings_module}}'
+  sudo: yes
+  notify:
+    - restart nginx
+    - start supervisord
+    - restart supervisord tasks
 
+- name: Configure uwsgi debug service
+  when: django_uwsgi_debug|default(False)
+  supervised:
+    name: "uwsgi-debug-{{django_project_name}}"
+    command: '{{django_env_path}}/bin/uwsgi --chdir {{django_app_path}}  --wsgi-file {{django_wsgi_script}} --master --processes 4 --threads 2 --http 0.0.0.0:{{django_uwsgi_debug_port}} --static-map {{django_static_url}}={{ django_static_path }}'
+    autorestart: false
+    autostart: false
+    stdout_logfile: '{{django_logs_path}}/uwsgi-debug-out.log'
+    stderr_logfile: '{{django_logs_path}}/uwsgi-debug-err.log'
+    user: '{{django_user}}'
+    directory: '{{django_app_path}}'
+    environment:
+      DJANGO_SETTINGS_MODULE: '{{django_settings_module}}'
   sudo: yes
   notify:
     - restart nginx
