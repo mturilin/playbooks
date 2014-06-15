@@ -1,0 +1,188 @@
+#!/usr/bin/python
+# coding=utf-8
+
+DOCUMENTATION = u'''---
+module: supervised
+version_added: "1.0"
+short_description: supervisord configuration for a task
+description:
+    - Creates supervisord configuration for a task by placing an appropriate configuration file into
+      /etc/supervisor/conf.d/ directory
+options:
+  name:
+    required: true
+    default: None
+    description:
+      - Task name to be identified by supervisord
+  command:
+    required: true
+    default: None
+    description:
+      - Shell command to start the task
+  env:
+    required: false
+    default: {}
+    description:
+      - Environment variables to be included in to the task
+  numprocs:
+    required: false
+    default: 1
+    description:
+      - Number of processes should be spawned by supervisor
+
+  autostart:
+    required: false
+    default: yes
+    choices: [ 'true', 'false' ]
+    description:
+      - If true, this program will start automatically when supervisord is started.
+
+  autorestart:
+    required: false
+    default: yes
+    choices: [ 'true', 'unexpected', 'false' ]
+    description:
+      - May be one of false, unexpected, or true. If false, the process will never be autorestarted. If unexpected, the
+        process will be restart when the program exits with an exit code that is not one of the exit codes associated
+        with this process’ configuration (see exitcodes). If true, the process will be unconditionally restarted when
+        it exits, without regard to its exit code.
+
+  startsecs:
+    required: false
+    default: 1
+    description:
+      - The total number of seconds which the program needs to stay running after a startup to consider the start
+        successful. If the program does not stay up for this many seconds after it has started, even if it exits with
+        an “expected” exit code (see exitcodes), the startup will be considered a failure. Set to 0 to indicate that the
+        program needn’t stay running for any particular amount of time.
+
+  startretries:
+    required: false
+    default: 3
+    description:
+      - The number of serial failure attempts that supervisord will allow when attempting to start the program before
+        giving up and puting the process into an FATAL state. See Process States for explanation of the FATAL state.
+
+  stdout_logfile:
+    required: false
+    default: AUTO
+    description:
+      - Put process stdout output in this file (and if redirect_stderr is true, also place stderr output in this file).
+        If stdout_logfile is unset or set to AUTO, supervisor will automatically choose a file location. If this is set
+        to NONE, supervisord will create no log file. AUTO log files and their backups will be deleted when supervisord
+        restarts. The stdout_logfile value can contain Python string expressions that will evaluated against a
+        dictionary that contains the keys group_name, host_node_name, process_num, program_name, and here (the directory
+        of the supervisord config file).
+
+  stderr_logfile:
+    required: false
+    default: AUTO
+    description:
+      - Put process stderr output in this file unless redirect_stderr is true. Accepts the same value types as
+        stdout_logfile and may contain the same Python string expressions.
+
+  user:
+    required: false
+    default: AUTO
+    description:
+      - If supervisord runs as root, this UNIX user account will be used as the account which runs the program.
+        If supervisord can’t switch to the specified user, the program will not be started.
+
+  directory:
+    required: false
+    default: AUTO
+    description:
+      - A file path representing a directory to which supervisord should temporarily chdir before exec’ing the child.
+        the program.
+requirements: [ "jinja2" ]
+
+
+author: Mikhail Turilin
+'''
+
+EXAMPLES = '''
+TODO: add examples
+'''
+
+KEYS = ["command", 'process_name', "environment", "numprocs", "autostart", "autorestart", "stdout_logfile",
+        "stderr_logfile", "stdout_syslog", "stderr_syslog", "user", "directory", "startsecs", "startretries"]
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            name=dict(required=True, default=None),
+            command=dict(required=True, default=None),
+            environment=dict(required=False, default={}),
+            numprocs=dict(required=False, default=1),
+            autostart=dict(required=False, default='true', choices=['true', 'false', 'unexpected', True, False],
+                           type='str'),
+            autorestart=dict(required=False, default='unexpected',
+                             choices=['true', 'false', 'unexpected', True, False]),
+            startsecs=dict(required=False, type='int'),
+            startretries=dict(required=False, type='int'),
+            stdout_logfile=dict(required=False, type='str'),
+            stderr_logfile=dict(required=False, type='str'),
+            stdout_syslog=dict(required=False, type='bool'),
+            stderr_syslog=dict(required=False, type='bool'),
+            user=dict(required=False, default=None, type='str'),
+            directory=dict(required=False, default=None, type='str')),
+        supports_check_mode=True)
+
+    name = module.params.get('name')
+    environment = module.params.get('environment')
+    numprocs = module.params.get('numprocs')
+
+    filename = '/etc/supervisor/conf.d/%s.conf' % name
+
+    try:
+        config = "[program:%s]\n" % name
+
+        # %(process_num) must be present within process_name when numprocs > 1
+        if numprocs > 1 and '%(process_num)' not in module.params.get('process_name', ''):
+            module.params['process_name'] = '%s-%%(process_num)s' % name
+
+        for key in KEYS:
+            val = module.params.get(key, None)
+            if val:
+                if key == "environment":
+                    val = ",".join(['%s="%s"' % item for item in environment.iteritems()])
+
+                if key in ["autorestart", "autostart", "stdout_syslog", "stderr_syslog"]:
+                    val = str(val).lower()
+
+                config += "%s=%s\n" % (key, val)
+
+    except Exception as exception:
+        module.fail_json(msg=unicode(exception))
+        return
+
+    if os.path.exists(filename):
+        try:
+            with open(filename) as template_file:
+                existing_config = template_file.read()
+        except IOError as io_error:
+            module.fail_json(msg=unicode(io_error))
+            return
+    else:
+        existing_config = None
+
+    if config != existing_config:
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        try:
+            with open(filename, 'w') as template_file:
+                template_file.write(config)
+        except IOError as io_error:
+            module.fail_json(msg=unicode(io_error))
+
+        module.exit_json(changed=True, msg="New configuration created", task=name)
+
+    module.exit_json(changed=False, msg="Configuration was already exist", task=name)
+
+
+# import module snippets
+from ansible.module_utils.basic import *
+
+main()

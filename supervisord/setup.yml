@@ -15,21 +15,21 @@
     - restart supervisord tasks
 
 - name: create supervisord config dir
-  file: path=/etc/supervisor/ mode=0700 state=directory
+  file: path=/etc/supervisor/ mode=0755 state=directory
   sudo: yes
   notify:
     - start supervisord
     - restart supervisord tasks
 
 - name: create supervisord log dir
-  file: path=/var/log/supervisor/ mode=0700 state=directory
+  file: path=/var/log/supervisor/ mode=0755 state=directory
   sudo: yes
   notify:
     - start supervisord
     - restart supervisord tasks
 
 - name: create supervisord config include dir
-  file: path=/etc/supervisor/conf.d/ mode=0700 state=directory recurse=yes
+  file: path=/etc/supervisor/conf.d/ mode=0755 state=directory
   sudo: yes
   notify:
     - start supervisord
