@@ -1,7 +1,7 @@
 ---
 #
 # Installs PostgreSQL server, creates user, and creates a database.
-# For security, ensures MySQL accepts only local connections.
+# For security, ensures it accepts only local connections.
 #
 
 - name: Install PosgreSQL packages
@@ -10,7 +10,7 @@
   with_items:
     - postgresql-{{postgresql_dist_version}}
     - python-psycopg2
-    - postgresql-server-dev-{{postgresql_dist_version}}
+    - postgresql-server-dev-{{postgresql_dist_version|default('9.3') }}
 
 - name: Create PosgreSQL user "{{postgresql_user_name}}"
   postgresql_user: name={{postgresql_user_name}} password="{{postgresql_user_password}}" state=present
