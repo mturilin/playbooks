@@ -9,7 +9,7 @@
 
 
 - name: Create directories
-  file: path={{item[0]}} owner={{django_user}} group={{django_user}} recurse=yes state=directory mode={{item[1]}}
+  file: path=item owner={{django_user}} group={{django_user}} recurse=yes state=directory mode=0777
   sudo: yes
   with_items: django_create_dirs
 
