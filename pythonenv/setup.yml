@@ -34,8 +34,8 @@
   sudo: yes
   sudo_user: "{{python_user}}"
 
-- name: Configure predeactivate's mode
-  file: src=../pythonenv/templates/predeactivate mode=0777
+- name: Set file attribs for "predeactivate"
+  file: path={{python_env_path}}/bin/predeactivate mode=0777
   sudo: yes
   sudo_user: "{{python_user}}"
 
@@ -44,8 +44,8 @@
   sudo: yes
   sudo_user: "{{python_user}}"
 
-- name: Configure postactivate's mode
-  file: src=../pythonenv/templates/postactivate mode=0777
+- name: Set file attribs for "postactivate"
+  file: path={{python_env_path}}/bin/postactivate mode=0777
   sudo: yes
   sudo_user: "{{python_user}}"
 
