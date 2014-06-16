@@ -6,7 +6,7 @@
     - update tzdata
     - restart cron
 
-- name: Set /etc/timezone to {{timezone}}
+- name: Set /etc/timezone
   template: src=../timezone/templates/etc_timezone dest=/etc/timezone
   sudo: yes
   when: timezone is defined
