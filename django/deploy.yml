@@ -9,9 +9,9 @@
 
 
 - name: Create directories
-  file: path=item owner={{django_user}} group={{django_user}} recurse=yes state=directory mode=0777
-  sudo: yes
+  file: path={{item}} owner={{django_user}} group={{django_user}} recurse=yes state=directory mode=0777
   with_items: django_create_dirs
+  sudo: yes
 
 
 - name: Sync Django database.
