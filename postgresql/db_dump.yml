@@ -1,0 +1,9 @@
+---
+- inlcude: backup_common.yml
+
+- name: Fetching file from remote
+  fetch: src=/tmp/db_{{postgresql_db_name}}/{{ random_filename.stdout }} dest={{ db_backup_dir }}/ fail_on_missing=yes flat=yes
+
+- name: Deleting temp file
+  file: path=/tmp/db_{{postgresql_db_name}}/{{ random_filename.stdout }} state=absent
+

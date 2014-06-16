@@ -1,0 +1,28 @@
+---
+
+- include: backup_common.yml
+
+
+- name: Put file into the temp
+  copy: src={{source_file}} dest=/tmp/db_{{postgresql_db_name}}/
+  register: remote_file
+
+- debug: msg="Uploaded file {{ remote_file.dest | string  }}"
+
+
+- name: Delete PosgreSQL database "{{postgresql_db_name}}"
+  postgresql_db: name={{postgresql_db_name}} state=absent owner={{postgresql_user_name}}
+  sudo: yes
+  sudo_user: postgres
+
+- name: Create PosgreSQL database "{{postgresql_db_name}}"
+  postgresql_db: name={{postgresql_db_name}} state=present owner={{postgresql_user_name}}
+  sudo: yes
+  sudo_user: postgres
+
+- name: Restore from the file
+  shell: cat {{ remote_file.dest }} | gunzip | PGPASSWORD={{postgresql_user_password}} psql {{ postgresql_db_name }} -U {{postgresql_user_name}} -h localhost
+
+
+- name: Delete remote file
+  file: path={{ remote_file.dest }} state=absent

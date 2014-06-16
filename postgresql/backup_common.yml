@@ -1,0 +1,15 @@
+- name: creating file name
+  command: date +%Y_%m_%d_%H_%M_%S_%N.zip
+  register: random_filename
+
+
+- name: Creating temp folder
+  file: path=/tmp/db_{{postgresql_db_name}} state=directory
+
+
+- debug: msg="Saved file /tmp/db_{{postgresql_db_name}}/{{random_filename.stdout}}"
+
+
+- name: Dump PostgreSQL database into temp file
+  shell: PGPASSWORD={{postgresql_user_password}} pg_dump {{ postgresql_db_name }} -U {{postgresql_user_name}} -h localhost | gzip > /tmp/db_{{postgresql_db_name}}/{{ random_filename.stdout }}
+
