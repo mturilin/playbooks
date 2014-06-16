@@ -5,7 +5,7 @@
     python_repo_path: "{{ django_repo_path }}"
     python_logs_path: "{{ django_logs_path }}"
     python_env_path: "{{ django_env_path }}"
-    python_env_variables: django_env_variables
+    python_env_variables: "{{django_env_variables}}"
     python_app_name: "{{ django_project_name }}"
     python_source_paths: "{{ django_source_paths }}"
 
