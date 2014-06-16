@@ -7,11 +7,11 @@ server {
 {% endif %}
 
 server {
-    {% if not nginx_ssl_only|default(False) %}
+    {% if not nginx_ssl_only|bool %}
     listen 80;
     {% endif %}
 
-    {% if nginx_ssl %}
+    {% if nginx_ssl|bool %}
     listen 443 default_server ssl;
     ssl_certificate      {{nginx_ssl_crt_file}};
     ssl_certificate_key  {{nginx_ssl_key_file}};
