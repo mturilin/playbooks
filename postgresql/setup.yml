@@ -4,11 +4,19 @@
 # For security, ensures it accepts only local connections.
 #
 
+- name: Add postgres repository key
+  apt_key: url=http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc state=present
+  sudo: yes
+
+- name: Add postgres repository
+  apt_repository: repo='deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main' state=present
+  sudo: yes
+
 - name: Install PosgreSQL packages
-  apt: pkg={{item}} state=installed
+  apt: pkg={{item}} state=installed update_cache=yes
   sudo: yes
   with_items:
-    - postgresql-{{postgresql_dist_version}}
+    - postgresql-{{postgresql_dist_version|default('9.3') }}
     - python-psycopg2
     - postgresql-server-dev-{{postgresql_dist_version|default('9.3') }}
 
