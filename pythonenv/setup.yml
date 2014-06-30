@@ -29,25 +29,33 @@
   sudo: yes
   sudo_user: "{{python_user}}"
 
-- name: Configure predeactivate env variables for virtualenv
-  template: src=../pythonenv/templates/predeactivate dest={{python_env_path}}/bin/predeactivate
-  sudo: yes
-  sudo_user: "{{python_user}}"
+#- name: Configure predeactivate env variables for virtualenv
+#  template: src=../pythonenv/templates/predeactivate dest={{python_env_path}}/bin/predeactivate
+#  sudo: yes
+#  sudo_user: "{{python_user}}"
+#
+#- name: Set file attribs for "predeactivate"
+#  file: path={{python_env_path}}/bin/predeactivate mode=0777
+#  sudo: yes
+#  sudo_user: "{{python_user}}"
+#
+#- name: Configure postactivate env variables for virtualenv
+#  template: src=../pythonenv/templates/postactivate dest={{python_env_path}}/bin/postactivate
+#  sudo: yes
+#  sudo_user: "{{python_user}}"
+#
+#- name: Set file attribs for "postactivate"
+#  file: path={{python_env_path}}/bin/postactivate mode=0777
+#  sudo: yes
+#  sudo_user: "{{python_user}}"
 
-- name: Set file attribs for "predeactivate"
-  file: path={{python_env_path}}/bin/predeactivate mode=0777
-  sudo: yes
-  sudo_user: "{{python_user}}"
 
-- name: Configure postactivate env variables for virtualenv
-  template: src=../pythonenv/templates/postactivate dest={{python_env_path}}/bin/postactivate
+- name: Configure env variables for virtualenv
+  lineinfile: dest={{python_env_path}}/bin/activate regexp="^export {{item.key}}" line="export {{item.key}}={{item.value}}"
   sudo: yes
   sudo_user: "{{python_user}}"
+  with_dict: python_env_variables
 
-- name: Set file attribs for "postactivate"
-  file: path={{python_env_path}}/bin/postactivate mode=0777
-  sudo: yes
-  sudo_user: "{{python_user}}"
 
 - name: Configure PYTHONPATH for virtualenv # this adds a .pth file into site-packages
   template: src=../pythonenv/templates/pythonpath.pth dest={{python_env_path}}/lib/python2.7/site-packages/{{python_app_name}}.pth

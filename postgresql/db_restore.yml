@@ -16,7 +16,7 @@
   sudo_user: postgres
 
 - name: Create PosgreSQL database "{{postgresql_db_name}}"
-  postgresql_db: name={{postgresql_db_name}} state=present owner={{postgresql_user_name}}
+  postgresql_db: name={{postgresql_db_name}} state=present owner={{postgresql_user_name}} encoding="{{postgresql_db_encoding}}" lc_collate="{{postgresql_db_lc_collate}}" lc_ctype="{{postgresql_db_lc_ctype}}"
   sudo: yes
   sudo_user: postgres
 
@@ -26,3 +26,4 @@
 
 - name: Delete remote file
   file: path={{ remote_file.dest }} state=absent
+  when: clean_upload|default(True)

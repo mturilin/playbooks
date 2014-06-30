@@ -31,8 +31,7 @@
     stderr_logfile: '{{django_logs_path}}/uwsgi-err.log'
     user: '{{django_user}}'
     directory: '{{django_app_path}}'
-    environment:
-      DJANGO_SETTINGS_MODULE: '{{django_settings_module}}'
+    environment: "{{django_env_variables}}"
   sudo: yes
   notify:
     - restart nginx
@@ -50,8 +49,7 @@
     stderr_logfile: '{{django_logs_path}}/uwsgi-debug-err.log'
     user: '{{django_user}}'
     directory: '{{django_app_path}}'
-    environment:
-      DJANGO_SETTINGS_MODULE: '{{django_settings_module}}'
+    environment: "{{django_env_variables}}"
   sudo: yes
   notify:
     - restart nginx
