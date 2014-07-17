@@ -3,6 +3,7 @@
   notify: restart supervisord tasks
   sudo: yes
   sudo_user: '{{python_user}}'
+  tags: ['update']
 
 - name: Update python dependencies.
   pip: requirements={{item}} virtualenv={{python_env_path}}
@@ -11,3 +12,4 @@
   with_items: python_requirements_paths
   notify:
     - restart supervisord tasks
+  tags: ['update']

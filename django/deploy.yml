@@ -18,23 +18,28 @@
   django_manage: command="syncdb --noinput" virtualenv={{django_env_path}}/ app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}
   sudo: yes
   sudo_user: '{{django_user}}'
+  tags: ['update']
 
 - name: Migrate Django database schema using South.
   django_manage: command="migrate" virtualenv={{django_env_path}}/ app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}
   sudo: yes
   sudo_user: '{{django_user}}'
   when: django_south_support | default(False)
+  tags: ['update']
 
 - name: Collect static files
   django_manage: command="collectstatic" virtualenv={{django_env_path}} app_path={{django_app_path}} settings={{django_settings_module}} pythonpath={{django_config_path}}
   sudo: yes
   sudo_user: '{{django_user}}'
+  tags: ['update']
 
 - name: Ensure nginx is started
   service: name=nginx state=started enabled=yes
   sudo: yes
+  tags: ['update']
 
 - name: Ensure supervisord is started
   service: name=supervisor state=started enabled=yes
   sudo: yes
+  tags: ['update']
 
