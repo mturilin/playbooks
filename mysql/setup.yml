@@ -11,6 +11,11 @@
     - mysql-server
     - python-mysqldb
 
+- name: Check we didn't break the root user
+  fail: Can\'t manipulate root user
+  when: mysql_user_name=='root'
+
+
 - name: Make MySQL accept only local connections
   lineinfile: dest=/etc/mysql/my.cnf regexp="^bind-address" line="bind-address = 127.0.0.1"
   sudo: yes
@@ -20,3 +25,4 @@
 
 - name: Create MySQL user "{{mysql_user_name}}"
   mysql_user: name={{mysql_user_name}} password="{{mysql_user_password}}" state=present priv="{{mysql_db_name}}.*:ALL"
+  when: mysql_user_name!='root'
