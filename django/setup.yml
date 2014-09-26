@@ -27,8 +27,8 @@
     name: "uwsgi-{{django_project_name}}"
     command: '{{django_env_path}}/bin/uwsgi --chdir {{django_app_path}}  --wsgi-file {{django_wsgi_script}} --master --processes 4 --threads 2 --socket 127.0.0.1:{{django_uwsgi_port}}'
     autorestart: true
-    stdout_logfile: '{{django_logs_path}}/uwsgi-out.log'
-    stderr_logfile: '{{django_logs_path}}/uwsgi-err.log'
+    stdout_logfile: '{{django_logging_out}}'
+    stderr_logfile: '{{django_logging_err}}'
     user: '{{django_user}}'
     directory: '{{django_app_path}}'
     environment: "{{django_env_variables}}"

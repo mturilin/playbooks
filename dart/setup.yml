@@ -1,0 +1,8 @@
+
+- name: Dart | Add the Dart PPA
+  apt_repository: repo='ppa:hachre/dart' state=present
+  sudo: yes
+
+- name: Dart | Install Dart
+  action: apt pkg=dartsdk state=installed
+  sudo: yes

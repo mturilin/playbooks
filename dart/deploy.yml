@@ -1,0 +1,10 @@
+---
+
+- name: Dart | Get dependencies
+  command: pub get
+  chdir: "{{dart_root}}"
+
+
+- name: Dart | Build JS app
+  command: pub build
+  chdir: "{{dart_root}}"

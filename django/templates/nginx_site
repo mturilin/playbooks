@@ -17,12 +17,12 @@ server {
     ssl_certificate_key  {{nginx_ssl_key_file}};
     {% endif %}
 
-    location {{django_static_url}} {
+    location {{django_static_url|default('/static/')}} {
         autoindex on;
         alias           {{django_static_path}}/;
     }
 
-    location / {
+    location {{django_url|default('/')}} {
         uwsgi_pass      127.0.0.1:{{django_uwsgi_port}};
         include         uwsgi_params;
     }
