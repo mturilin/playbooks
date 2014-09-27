@@ -1,3 +1,7 @@
+- name: Install Redis
+  apt: pkg=redis-server
+  sudo: yes
+
 - name: Adding celery worker daemons
   supervised:
     name: celery-worker-{{item.app}}
@@ -9,6 +13,7 @@
     user: '{{celery_user}}'
     directory: '{{celery_directory}}'
     numprocs: '{{item.numprocs}}'
+    environment: '{{ item.env }}'
   with_items: celery_apps
   sudo: yes
 
@@ -23,6 +28,7 @@
     user: '{{celery_user}}'
     directory: '{{celery_directory}}'
     numprocs: 1
+    environment: '{{ item.env }}'
   when: item.beat
   with_items: celery_apps
   sudo: yes
