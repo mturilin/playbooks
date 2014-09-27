@@ -1,5 +1,5 @@
-- name: Install Redis
-  apt: pkg=redis-server
+- name: Install RabbitMQ
+  apt: pkg=rabbitmq-server
   sudo: yes
 
 - name: Adding celery worker daemons

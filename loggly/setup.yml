@@ -1,8 +1,8 @@
 - name: Update rsyslog config to include Loggly - template line
   lineinfile:
     dest: /etc/rsyslog.conf
-    regexp: "^$template LogglyFormat"
-    line: '$template LogglyFormat,"<%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [{{loggly_token}}@41058 {% if loggly_tag %}tag=\"{{loggly_tag}}\"{% endif %}] %msg%\n"'
+    regexp: "^\\$template LogglyFormat"
+    line: '$template LogglyFormat,"<%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [{{loggly_token}}@41058 {% if loggly_tag %}tag=\\"{{loggly_tag}}\\"{% endif %}] %msg%\n"'
   sudo: yes
   notify:
     - restart rsyslog
